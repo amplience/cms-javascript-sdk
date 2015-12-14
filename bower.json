@@ -1,0 +1,12 @@
+{
+  "name": "amplience-cms-javascript-sdk",
+  "main": "dist/cms-javascript-sdk.min.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "package.json",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
