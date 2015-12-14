@@ -47,12 +47,13 @@
         }
     };
 
-    function inlineContent(content){
+    function inlineContent(response){
         var contentMap = {};
-        _forEach(content.data.content['@graph'], function(content){
+        _forEach(response.content['@graph'], function(content){
             contentMap[content['@id']] = content;
         });
-        var requestedContent = content.data.requestedContent[0]["@id"];
+
+        var requestedContent = response.result[0]["@id"];
         return  inlineChildContent({"@id": requestedContent}, contentMap)
     }
 
