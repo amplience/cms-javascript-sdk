@@ -2,7 +2,7 @@
 (function (definition) {
     "use strict";
 
-    if (typeof exports === "object" && typeof module === "object") {
+    if ( typeof module === "object" && module && typeof module.exports === "object" ) {
         module.exports = definition();
     } else if (typeof window !== "undefined" || typeof self !== "undefined") {
         var global = typeof window !== "undefined" ? window : self;
@@ -19,14 +19,37 @@
 
 })(function(){
     "use strict";
+    var _isArray = Array.isArray || function (arg) {
+        return Object.prototype.toString.call(arg) === '[object Array]';
+    };
 
-    return {
-        inlineContent:inlineContent
+    var _keys = Object.keys || function (obj) {
+        var keys = [];
+        for (var k in obj) {
+            if (obj.hasOwnProperty(k)) {
+                keys.push(k);
+            }
+        }
+        return keys;
+    };
+
+    var _forEach = function(arr, iterator, context){
+        if(!_isArray(arr)){
+            return;
+        }
+
+        if(arr.forEach){
+            arr.forEach(iterator, context);
+        }else{
+            for(var key = 0, len = arr.length; key < len; key++){
+                iterator.call(context, arr[key], key, arr);
+            }
+        }
     };
 
     function inlineContent(content){
         var contentMap = {};
-        content.data.content['@graph'].forEach(function(content){
+        _forEach(content.data.content['@graph'], function(content){
             contentMap[content['@id']] = content;
         });
         var requestedContent = content.data.requestedContent[0]["@id"];
@@ -34,25 +57,29 @@
     }
 
     function inlineChildContent(parentNode, contentMap){
-        Object.keys(parentNode).forEach(function(key){
+        _forEach(_keys(parentNode), function(key){
             var value = parentNode[key];
             if(key === '@id'){
-                Object.keys(contentMap[value]).forEach(function(childKey){
+                _forEach(_keys(contentMap[value]), function(childKey){
                     parentNode[childKey] = contentMap[value][childKey];
                 })
             }
         });
 
-        Object.keys(parentNode).forEach(function(key){
+        _forEach(_keys(parentNode), function(key){
             var value = parentNode[key];
             if(value !== null && typeof value === 'object'){
                 parentNode[key] = inlineChildContent(parentNode[key], contentMap);
-            }else if(Array.isArray(value)){
-                value.forEach(function(item, i){
+            }else if(_isArray(value)){
+                _forEach(value, function(item, i){
                     parentNode[key][i] = inlineChildContent(parentNode[key][i], contentMap);
-                })
+                });
             }
         });
         return parentNode;
     }
+
+    return {
+        inlineContent:inlineContent
+    };
 });
