@@ -1,11 +1,12 @@
 /*global window self*/
-(function (definition) {
-    "use strict";
 
-    if ( typeof module === "object" && module && typeof module.exports === "object" ) {
+(function (definition) {
+    'use strict';
+
+    if ( typeof module === 'object' && module && typeof module.exports === 'object' ) {
         module.exports = definition();
-    } else if (typeof window !== "undefined" || typeof self !== "undefined") {
-        var global = typeof window !== "undefined" ? window : self;
+    } else if (typeof window !== 'undefined' || typeof self !== 'undefined') {
+        var global = typeof window !== 'undefined' ? window : self;
 
         var previousAmp = global.amp;
         global.amp = definition();
@@ -14,11 +15,18 @@
             return this;
         };
     } else {
-        throw new Error("Environment was not anticipated.");
+        throw new Error('Environment was not anticipated.');
     }
 
 })(function(){
-    "use strict";
+    'use strict';
+
+    var _log = function(){
+        if(console){
+            console.log( Array.prototype.slice.call(arguments));
+        }
+    };
+
     var _isArray = Array.isArray || function (arg) {
         return Object.prototype.toString.call(arg) === '[object Array]';
     };
@@ -47,22 +55,31 @@
         }
     };
 
-    function inlineContent(response){
-        var contentMap = {};
-        _forEach(response.content['@graph'], function(content){
-            contentMap[content['@id']] = content;
+    function inlineContent(delivery){
+        var inlinedContent = [];
+        var contentKeyMap = {};
+
+        _forEach(delivery.content['@graph'], function(content){
+            contentKeyMap[content['@id']] = content;
         });
 
-        var requestedContent = response.result[0]["@id"];
-        return  inlineChildContent({"@id": requestedContent}, contentMap)
+        _forEach(delivery.result, function(result){
+            var content = inlineChildContent({'@id': result['@id']}, contentKeyMap);
+            inlinedContent.push(content)
+        });
+
+        return inlinedContent;
     }
 
-    function inlineChildContent(parentNode, contentMap){
+    function inlineChildContent(parentNode, contentKeyMap){
         _forEach(_keys(parentNode), function(key){
             var value = parentNode[key];
             if(key === '@id'){
-                _forEach(_keys(contentMap[value]), function(childKey){
-                    parentNode[childKey] = contentMap[value][childKey];
+                if(!contentKeyMap[value]){
+                    _log('Could not find corresponding content for id '+value);
+                }
+                _forEach(_keys(contentKeyMap[value]), function(childKey){
+                    parentNode[childKey] = contentKeyMap[value][childKey];
                 })
             }
         });
@@ -70,14 +87,15 @@
         _forEach(_keys(parentNode), function(key){
             var value = parentNode[key];
             if(value !== null && typeof value === 'object'){
-                parentNode[key] = inlineChildContent(parentNode[key], contentMap);
+                parentNode[key] = inlineChildContent(parentNode[key], contentKeyMap);
             }else if(_isArray(value)){
                 _forEach(value, function(item, i){
-                    parentNode[key][i] = inlineChildContent(parentNode[key][i], contentMap);
+                    parentNode[key][i] = inlineChildContent(parentNode[key][i], contentKeyMap);
                 });
             }
         });
-        return parentNode;
+
+         return parentNode;
     }
 
     return {

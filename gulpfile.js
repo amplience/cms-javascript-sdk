@@ -34,7 +34,7 @@ gulp.task('scripts', function () {
 });
 
 gulp.task('test-node', function () {
-    return gulp.src(['tests/**/*.spec.js']).pipe($.jasmineNode({
+    return gulp.src(['tests/**/*.spec.js','!tests/**/*-browser.spec.js']).pipe($.jasmineNode({
         timeout: 10000
     }));
 });
