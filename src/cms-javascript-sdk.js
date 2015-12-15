@@ -3,7 +3,7 @@
 (function (definition) {
     'use strict';
 
-    if ( typeof module === 'object' && module && typeof module.exports === 'object' ) {
+    if (typeof module === 'object' && module && typeof module.exports === 'object') {
         module.exports = definition();
     } else if (typeof window !== 'undefined' || typeof self !== 'undefined') {
         var global = typeof window !== 'undefined' ? window : self;
@@ -18,12 +18,12 @@
         throw new Error('Environment was not anticipated.');
     }
 
-})(function(){
+})(function () {
     'use strict';
 
-    var _log = function(){
-        if(console){
-            console.log( Array.prototype.slice.call(arguments));
+    var _log = function () {
+        if (console) {
+            console.log(Array.prototype.slice.call(arguments));// eslint-disable-line no-console
         }
     };
 
@@ -41,64 +41,73 @@
         return keys;
     };
 
-    var _forEach = function(arr, iterator, context){
-        if(!_isArray(arr)){
+    var _forEach = function (arr, iterator, context) {
+        if (!_isArray(arr)) {
             return;
         }
 
-        if(arr.forEach){
+        if (arr.forEach) {
             arr.forEach(iterator, context);
-        }else{
-            for(var key = 0, len = arr.length; key < len; key++){
+        } else {
+            for (var key = 0, len = arr.length; key < len; key++) {
                 iterator.call(context, arr[key], key, arr);
             }
         }
     };
 
-    function inlineContent(delivery){
+    function inlineContent(delivery) {
         var inlinedContent = [];
         var contentKeyMap = {};
 
-        _forEach(delivery.content['@graph'], function(content){
-            contentKeyMap[content['@id']] = content;
-        });
+        if (delivery && delivery.content) {
+            _forEach(delivery.content['@graph'], function (content) {
+                contentKeyMap[content['@id']] = content;
+            });
 
-        _forEach(delivery.result, function(result){
-            var content = inlineChildContent({'@id': result['@id']}, contentKeyMap);
-            inlinedContent.push(content)
-        });
+            _forEach(delivery.result, function (result) {
+                if (!result['@id']) {
+                    return;
+                }
+
+                var content = inlineChildContent({'@id': result['@id']}, contentKeyMap);
+                if (content) {
+                    inlinedContent.push(content);
+                }
+            });
+        }
 
         return inlinedContent;
     }
 
-    function inlineChildContent(parentNode, contentKeyMap){
-        _forEach(_keys(parentNode), function(key){
+    function inlineChildContent(parentNode, contentKeyMap) {
+        _forEach(_keys(parentNode), function (key) {
             var value = parentNode[key];
-            if(key === '@id'){
-                if(!contentKeyMap[value]){
-                    _log('Could not find corresponding content for id '+value);
+            if (key === '@id') {
+                if (!contentKeyMap[value]) {
+                    _log('Could not find corresponding content for id ' + value);
+                    return;
                 }
-                _forEach(_keys(contentKeyMap[value]), function(childKey){
+                _forEach(_keys(contentKeyMap[value]), function (childKey) {
                     parentNode[childKey] = contentKeyMap[value][childKey];
                 })
             }
         });
 
-        _forEach(_keys(parentNode), function(key){
+        _forEach(_keys(parentNode), function (key) {
             var value = parentNode[key];
-            if(value !== null && typeof value === 'object'){
+            if (value !== null && typeof value === 'object') {
                 parentNode[key] = inlineChildContent(parentNode[key], contentKeyMap);
-            }else if(_isArray(value)){
-                _forEach(value, function(item, i){
+            } else if (_isArray(value)) {
+                _forEach(value, function (item, i) {
                     parentNode[key][i] = inlineChildContent(parentNode[key][i], contentKeyMap);
                 });
             }
         });
 
-         return parentNode;
+        return parentNode;
     }
 
     return {
-        inlineContent:inlineContent
+        inlineContent: inlineContent
     };
 });
