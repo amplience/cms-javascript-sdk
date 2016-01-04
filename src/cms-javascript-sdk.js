@@ -84,7 +84,6 @@
             var value = parentNode[key];
             if (key === '@id') {
                 if (!contentKeyMap[value]) {
-                    _log('Could not find corresponding content for id ' + value);
                     return;
                 }
                 _forEach(_keys(contentKeyMap[value]), function (childKey) {
