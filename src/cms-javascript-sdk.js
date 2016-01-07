@@ -59,8 +59,8 @@
         var inlinedContent = [];
         var contentKeyMap = {};
 
-        if (delivery && delivery.content) {
-            _forEach(delivery.content['@graph'], function (content) {
+        if (delivery) {
+            _forEach(delivery['@graph'], function (content) {
                 contentKeyMap[content['@id']] = content;
             });
 
