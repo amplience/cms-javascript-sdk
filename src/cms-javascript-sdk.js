@@ -21,12 +21,6 @@
 })(function () {
     'use strict';
 
-    var _log = function () {
-        if (console) {
-            console.log(Array.prototype.slice.call(arguments));// eslint-disable-line no-console
-        }
-    };
-
     var _isArray = Array.isArray || function (arg) {
         return Object.prototype.toString.call(arg) === '[object Array]';
     };
