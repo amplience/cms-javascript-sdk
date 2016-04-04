@@ -1,6 +1,6 @@
 {
   "name": "cms-javascript-sdk",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A JavaScript SDK for the Amplience Content Management System.",
   "main": "src/cms-javascript-sdk.js",
   "repository": {
