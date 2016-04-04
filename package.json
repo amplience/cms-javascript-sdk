@@ -1,14 +1,14 @@
 {
   "name": "cms-javascript-sdk",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A JavaScript SDK for the Amplience Content Management System.",
   "main": "src/cms-javascript-sdk.js",
   "repository": {
     "type": "git",
-    "url": "git@bitbucket.org:amplience/cms-javascript-sdk.git"
+    "url": "git@github.com:amplience/cms-javascript-sdk.git"
   },
   "author": "Amplience",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "config": {
     "dist": "dist",
     "src": "src"
