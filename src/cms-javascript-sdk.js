@@ -54,9 +54,11 @@
         var contentKeyMap = {};
 
         if (delivery) {
-            _forEach(delivery['@graph'], function (content) {
-                contentKeyMap[content['@id']] = content;
-            });
+            if (delivery && delivery.content) {
+                _forEach(delivery.content['@graph'], function (content) {
+                    contentKeyMap[content['@id']] = content;
+                });
+            }
 
             _forEach(delivery.result, function (result) {
                 if (!result['@id']) {
